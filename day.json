@@ -1,0 +1,53 @@
+{
+    "alerts": null,
+    "alert_events": {},
+    "top_performers": [
+        {
+            "amount": 26.4177564519558,
+            "name": "AT - New Steps CCS mb"
+        },
+        {
+            "amount": 10.5671025807823,
+            "name": "AT - Secure Steps CCS gc"
+        },
+        {
+            "amount": 10.5671025807823,
+            "name": "CH - Easy Empty Green CCS gc"
+        },
+        {
+            "amount": 9.35943069523504,
+            "name": "FR - Empty Green CCS pf"
+        }
+    ],
+    "totals": {
+        "start_time": "1740524400",
+        "dist": {
+            "Spain": {
+                "clicks": 3157,
+                "pixels": 12,
+                "pixel_dist": 6,
+                "click_dist": 15
+            },
+            "France": {
+                "clicks": 2865,
+                "pixels": 45,
+                "pixel_dist": 24,
+                "click_dist": 14
+            },
+            "Greece": {
+                "clicks": 265,
+                "pixels": 3,
+                "pixel_dist": 1,
+                "click_dist": 1
+            }
+        },
+        "total_payout": "7,304.40",
+        "payout_type": "Payout",
+        "data_type": "Campaign",
+        "end_time": "1740697200",
+        "graph_link": "adv/report",
+        "total_impressions": "19,951",
+        "offset": 60.0,
+        "total_pixels": 187
+    }
+}
