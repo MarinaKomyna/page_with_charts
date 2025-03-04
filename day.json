@@ -33,12 +33,6 @@
                 "pixels": 45,
                 "pixel_dist": 24,
                 "click_dist": 14
-            },
-            "Greece": {
-                "clicks": 265,
-                "pixels": 3,
-                "pixel_dist": 1,
-                "click_dist": 1
             }
         },
         "total_payout": "7,304.40",
