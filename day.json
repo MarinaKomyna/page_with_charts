@@ -22,13 +22,15 @@
     "totals": {
         "start_time": "1740524400",
         "dist": {
-            "Spain": {
+            "Spain" : {
+                "name" : "Spain",
                 "clicks": 3157,
                 "pixels": 12,
                 "pixel_dist": 6,
                 "click_dist": 15
             },
             "France": {
+                "name" : "France",
                 "clicks": 2865,
                 "pixels": 45,
                 "pixel_dist": 24,
