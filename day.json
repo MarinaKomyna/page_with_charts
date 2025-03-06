@@ -22,12 +22,6 @@
     "totals": {
         "start_time": "1741027270",
         "dist": {
-            "GL": {
-                "clicks": 2467,
-                "pixels": 21,
-                "pixel_dist": 15,
-                "click_dist": 13
-            },
             "CZ": {
                 "clicks": 505,
                 "pixels": 18,
@@ -75,12 +69,6 @@
                 "pixels": 4,
                 "pixel_dist": 2,
                 "click_dist": 14
-            },
-            "US": {
-                "clicks": 2106,
-                "pixels": 1,
-                "pixel_dist": 0,
-                "click_dist": 11
             },
             "IE": {
                 "clicks": 324,
