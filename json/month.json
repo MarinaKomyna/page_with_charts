@@ -1,0 +1,113 @@
+{
+    "alerts": null,
+    "alert_events": {},
+    "top_performers": [
+        {
+            "amount": 8.48501535681717,
+            "name": "LT - Empty LP CCS mb"
+        },
+        {
+            "amount": 4.24250767840858,
+            "name": "EE - Orange Checkout CCS pf"
+        },
+        {
+            "amount": 3.69255140805648,
+            "name": "SA - Clear Blank Exclusive Prefill CCS gc"
+        },
+        {
+            "amount": 2.82833986644162,
+            "name": "KW - Secure Steps CCS gc"
+        }
+    ],
+    "totals": {
+        "start_time": "1738364400",
+        "dist": {
+            "FR": {
+                "clicks": 79637,
+                "pixels": 232,
+                "pixel_dist": 7,
+                "click_dist": 14
+            },
+            "PL": {
+                "clicks": 19386,
+                "pixels": 69,
+                "pixel_dist": 2,
+                "click_dist": 3
+            },
+            "BA": {
+                "clicks": 8397,
+                "pixels": 87,
+                "pixel_dist": 2,
+                "click_dist": 1
+            },
+            "UK": {
+                "clicks": 30043,
+                "pixels": 8,
+                "pixel_dist": 0,
+                "click_dist": 5
+            },
+            "SE": {
+                "clicks": 9873,
+                "pixels": 408,
+                "pixel_dist": 12,
+                "click_dist": 1
+            },
+            "DE": {
+                "clicks": 9499,
+                "pixels": 15,
+                "pixel_dist": 0,
+                "click_dist": 1
+            },
+            "FI": {
+                "clicks": 26367,
+                "pixels": 367,
+                "pixel_dist": 11,
+                "click_dist": 4
+            },
+            "RO": {
+                "clicks": 34556,
+                "pixels": 121,
+                "pixel_dist": 3,
+                "click_dist": 6
+            },
+            "ES": {
+                "clicks": 130689,
+                "pixels": 381,
+                "pixel_dist": 11,
+                "click_dist": 23
+            },
+            "SI": {
+                "clicks": 18978,
+                "pixels": 90,
+                "pixel_dist": 2,
+                "click_dist": 3
+            },
+            "BG": {
+                "clicks": 10733,
+                "pixels": 211,
+                "pixel_dist": 6,
+                "click_dist": 1
+            },
+            "CH": {
+                "clicks": 5627,
+                "pixels": 53,
+                "pixel_dist": 1,
+                "click_dist": 1
+            },
+            "IE": {
+                "clicks": 12717,
+                "pixels": 25,
+                "pixel_dist": 0,
+                "click_dist": 2
+            }
+        },
+        "total_payout": "74,774.60",
+        "payout_type": "Payout",
+        "end_time": "1740783600",
+        "data_type": "Campaign",
+        "total_impressions": "548,765",
+        "graph_link": "adv/report",
+        "total_pixels": "3,290",
+        "offset": 60.0
+    }
+}

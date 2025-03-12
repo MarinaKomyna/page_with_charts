@@ -1,0 +1,101 @@
+{
+    "alerts": null,
+    "alert_events": {},
+    "top_performers": [
+        {
+            "amount": 9.96075264243827,
+            "name": "NL - New Steps CCS gc"
+        },
+        {
+            "amount": 7.30455193778806,
+            "name": "PL - Empty Switch CCS mb"
+        },
+        {
+            "amount": 6.64050176162551,
+            "name": "BE - FBlank CCS mb"
+        },
+        {
+            "amount": 4.98037632121914,
+            "name": "MK - One Step Blank CCS pf"
+        }
+    ],
+    "totals": {
+        "start_time": "1741302000",
+        "dist": {
+            "ES": {
+                "clicks": 11815,
+                "pixels": 48,
+                "pixel_dist": 11,
+                "click_dist": 18
+            },
+            "FR": {
+                "clicks": 10867,
+                "pixels": 18,
+                "pixel_dist": 4,
+                "click_dist": 17
+            },
+            "SA": {
+                "clicks": 4799,
+                "pixels": 1,
+                "pixel_dist": 0,
+                "click_dist": 7
+            },
+            "PT": {
+                "clicks": 1093,
+                "pixels": 12,
+                "pixel_dist": 2,
+                "click_dist": 1
+            },
+            "SI": {
+                "clicks": 1727,
+                "pixels": 22,
+                "pixel_dist": 5,
+                "click_dist": 2
+            },
+            "BA": {
+                "clicks": 3008,
+                "pixels": 34,
+                "pixel_dist": 8,
+                "click_dist": 4
+            },
+            "UK": {
+                "clicks": 663,
+                "pixels": 0,
+                "pixel_dist": 0,
+                "click_dist": 1
+            },
+            "CH": {
+                "clicks": 5838,
+                "pixels": 62,
+                "pixel_dist": 14,
+                "click_dist": 9
+            },
+            "IE": {
+                "clicks": 795,
+                "pixels": 1,
+                "pixel_dist": 0,
+                "click_dist": 1
+            },
+            "FI": {
+                "clicks": 3891,
+                "pixels": 65,
+                "pixel_dist": 15,
+                "click_dist": 6
+            },
+            "RO": {
+                "clicks": 2321,
+                "pixels": 4,
+                "pixel_dist": 0,
+                "click_dist": 3
+            }
+        },
+        "total_payout": "7,826.40",
+        "payout_type": "Payout",
+        "data_type": "Campaign",
+        "end_time": 1741647599,
+        "graph_link": "adv/report",
+        "total_impressions": "63,261",
+        "offset": 60.0,
+        "total_pixels": 422
+    }
+}

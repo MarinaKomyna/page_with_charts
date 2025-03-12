@@ -1,0 +1,95 @@
+{
+    "alerts": null,
+    "alert_events": {},
+    "top_performers": [
+        {
+            "amount": 5.68538796809184,
+            "name": "BE - FBlank CCS mb"
+        },
+        {
+            "amount": 5.02086415568104,
+            "name": "NL - New Steps CCS gc"
+        },
+        {
+            "amount": 4.29562555358679,
+            "name": "PL - Empty Switch CCS mb"
+        },
+        {
+            "amount": 3.1631438908884,
+            "name": "IT - Clear Blank Exclusive Prefill CCS gc"
+        }
+    ],
+    "totals": {
+        "start_time": "1740956400",
+        "dist": {
+            "CZ": {
+                "clicks": 2138,
+                "pixels": 68,
+                "pixel_dist": 7,
+                "click_dist": 1
+            },
+            "ES": {
+                "clicks": 20936,
+                "pixels": 79,
+                "pixel_dist": 8,
+                "click_dist": 12
+            },
+            "FR": {
+                "clicks": 12797,
+                "pixels": 72,
+                "pixel_dist": 7,
+                "click_dist": 7
+            },
+            "SA": {
+                "clicks": 43932,
+                "pixels": 2,
+                "pixel_dist": 0,
+                "click_dist": 25
+            },
+            "SI": {
+                "clicks": 1931,
+                "pixels": 24,
+                "pixel_dist": 2,
+                "click_dist": 1
+            },
+            "BA": {
+                "clicks": 5265,
+                "pixels": 60,
+                "pixel_dist": 6,
+                "click_dist": 3
+            },
+            "CH": {
+                "clicks": 18057,
+                "pixels": 68,
+                "pixel_dist": 7,
+                "click_dist": 10
+            },
+            "IE": {
+                "clicks": 2444,
+                "pixels": 10,
+                "pixel_dist": 1,
+                "click_dist": 1
+            },
+            "FI": {
+                "clicks": 6675,
+                "pixels": 80,
+                "pixel_dist": 8,
+                "click_dist": 3
+            },
+            "RO": {
+                "clicks": 4986,
+                "pixels": 9,
+                "pixel_dist": 0,
+                "click_dist": 2
+            }
+        },
+        "total_payout": "21,496.00",
+        "payout_type": "Payout",
+        "data_type": "Campaign",
+        "end_time": "1741561200",
+        "graph_link": "adv/report",
+        "total_impressions": "169,318",
+        "offset": 60.0,
+        "total_pixels": 945
+    }
+}
