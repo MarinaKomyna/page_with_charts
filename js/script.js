@@ -4,7 +4,7 @@ const pageElements = {
     closeIcon: document.getElementById("close-icon"),
     totalVisits: document.getElementById("total-visits-number"),
     timeTitle: document.getElementById("time-title"),
-    visitsText: document.getElementById("visits-text"),
+    //visitsText: document.getElementById("visits-text"),
     legendDiv: document.getElementById("legend-div"),
     lineChart: document.getElementById("line_chart"),
     pieChart: document.getElementById("piechart"),
@@ -37,7 +37,9 @@ const countryMapping = {
     'SI': 'Slovenia',
     'BG': 'Bulgaria',
     'CH': 'Switzerland',
-    'IE': 'Ireland'
+    'IE': 'Ireland',
+    'GL': 'Greenland',
+    'US': 'United States'
 };
 
 function getCountryName(countryCode) {
@@ -53,12 +55,12 @@ function toggleActiveMode(buttonId) {
 let currentJsonFile = 'day.json';
 
 function handlePeriodChange(period, jsonFile) {
-    return function () {
+    return async function () {
         toggleActiveMode(`btn${period.charAt(0).toUpperCase()}`);
         currentJsonFile = jsonFile;
-        drawLineChart(period);
-        updateAllCharts();
-        setRandomTime();
+        await drawLineChart(period);
+        await updateAllCharts();
+        await setTimeOnSite();
     };
 }
 
@@ -97,7 +99,7 @@ function generateWeeklyData() {
 
 function generateMonthlyData() {
     const data = [['Hour', 'Visits']];
-    for (let hour = 0; hour < 744; hour++) {
+    for (let hour = 0; hour < 720; hour++) {
         const hourOfDay = hour % 24;
         const day = Math.floor(hour / 24) + 1;
         let visits = (hourOfDay >= 18 || hourOfDay < 2)
@@ -109,67 +111,72 @@ function generateMonthlyData() {
     return data;
 }
 
-function drawLineChart(period) {
-    const periodConfig = {
-        daily: {
-            getData: generateDailyData,
-            title: 'Hours (24 hours)',
-            text: 'This chart displays the trend of daily visits over the past 3 days.',
-            gridlines: 24
-        },
-        weekly: {
-            getData: generateWeeklyData,
-            title: 'Hours (7 days)',
-            text: 'This chart displays the trend of weekly visits over the past 3 weeks.',
-            gridlines: 14
-        },
-        monthly: {
-            getData: generateMonthlyData,
-            title: 'Hours (31 days)',
-            text: 'This chart displays the trend of monthly visits over the past 3 months.',
-            gridlines: 31
-        }
-    };
+async function drawLineChart(period) {
+    try {
+        const response = await fetch(`https://adavice.github.io/charts/json/${currentJsonFile}`);
+        const jsonData = await response.json();
+        
+        const data = [['Hour', 'Visits']];
+        jsonData.visitDuration.forEach(entry => {
+            data.push([entry.hour, entry.visits]);
+        });
 
-    const config = periodConfig[period] || periodConfig.daily;
-    const data = google.visualization.arrayToDataTable(config.getData());
-
-    const view = new google.visualization.DataView(data);
-    view.setColumns([0, 1, {
-        type: 'string',
-        role: 'tooltip',
-        properties: { html: true },
-        calc: (dt, row) => `<div style="padding:5px; font-family: Arial, sans-serif; font-size: 14px;width: fit-content;"><b>${dt.getValue(row, 0)}</b></div>`
-    }]);
-
-    const options = {
-        curveType: 'function',
-        legend: { position: 'none' },
-        tooltip: { isHtml: true },
-        hAxis: {
-            title: config.title,
-            gridlines: {
-                count: config.gridlines,
-                color: '#f5f5f5'
+        const periodConfig = {
+            daily: {
+                title: 'Hours (24h)',
+                gridlines: 24
             },
-            baselineColor: '#ddd',
-            textStyle: { fontSize: 12 }
-        },
-        vAxis: {
-            title: 'Visits',
-            viewWindow: { min: 0, max: 30 },
-            gridlines: { color: '#f5f5f5' },
-            baselineColor: '#ddd',
-            textStyle: { fontSize: 12 }
-        },
-        chartArea: { width: '90%', height: '80%' },
-        colors: ['#3366cc'],
-        lineWidth: 2
-    };
+            weekly: {
+                title: 'Days (7d)',
+                gridlines: 14
+            },
+            monthly: {
+                title: 'Days (30 days)',
+                gridlines: 30
+            }
+        };
 
-    const chart = new google.visualization.LineChart(pageElements.lineChart);
-    chart.draw(view, options);
-    pageElements.visitsText.textContent = config.text;
+        const config = periodConfig[period] || periodConfig.daily;
+        const chartData = google.visualization.arrayToDataTable(data);
+
+        const view = new google.visualization.DataView(chartData);
+        view.setColumns([0, 1, {
+            type: 'string',
+            role: 'tooltip',
+            properties: { html: true },
+            calc: (dt, row) => `<div style="padding:5px; font-family: Arial, sans-serif; font-size: 14px;width: fit-content;"><b>${dt.getValue(row, 0)}</b><br>Visits: ${dt.getValue(row, 1)}</div>`
+        }]);
+
+        const options = {
+            curveType: 'function',
+            legend: { position: 'none' },
+            tooltip: { isHtml: true },
+            hAxis: {
+                title: config.title,
+                gridlines: {
+                    count: config.gridlines,
+                    color: '#f5f5f5'
+                },
+                baselineColor: '#ddd',
+                textStyle: { fontSize: 12 }
+            },
+            vAxis: {
+                title: 'Visits',
+                viewWindow: { min: 0 },
+                gridlines: { color: '#f5f5f5' },
+                baselineColor: '#ddd',
+                textStyle: { fontSize: 12 }
+            },
+            chartArea: { width: '90%', height: '80%' },
+            colors: ['#3366cc'],
+            lineWidth: 2
+        };
+
+        const chart = new google.visualization.LineChart(pageElements.lineChart);
+        chart.draw(view, options);
+    } catch (error) {
+        console.error('Error fetching visit duration data:', error);
+    }
 }
 
 async function fetchGeoData() {
@@ -202,20 +209,35 @@ async function fetchGeoData() {
     }
 }
 
-function generateRandomDataForOtherCharts(type) {
-    const data = [['Category', 'Percentage']];
-    if (type === 'pie') {
-        const mobilePercentage = Math.floor(Math.random() * (94 - 81 + 1)) + 81;
-        data.push(['Mobile', mobilePercentage], ['Desktop', 100 - mobilePercentage]);
-    } else if (type === 'column') {
-        const displayAdsPercentage = Math.floor(Math.random() * (87 - 75 + 1)) + 75;
-        data.push(['DisplayAds', displayAdsPercentage], ['Paid', 100 - displayAdsPercentage]);
+async function getChartData() {
+    try {
+        const response = await fetch(`https://adavice.github.io/charts/json/${currentJsonFile}`);
+        const jsonData = await response.json();
+        
+        const pieData = [
+            ['Category', 'Percentage'],
+            ['Mobile', jsonData.deviceDistribution.mobile],
+            ['Desktop', jsonData.deviceDistribution.desktop]
+        ];
+        
+        const columnData = [
+            ['Category', 'Percentage'],
+            ['DisplayAds', jsonData.channelsOverview.displayAds],
+            ['Paid', jsonData.channelsOverview.paid]
+        ];
+        
+        return { pieData, columnData };
+    } catch (error) {
+        console.error('Error fetching chart data:', error);
+        return {
+            pieData: [['Category', 'Percentage'], ['No Data', 0]],
+            columnData: [['Category', 'Percentage'], ['No Data', 0]]
+        };
     }
-    return data;
 }
 
 async function drawCharts() {
-    const [pieData, columnData] = ['pie', 'column'].map(generateRandomDataForOtherCharts);
+    const { pieData, columnData } = await getChartData();
     const { geoData, totalClicks } = await fetchGeoData();
 
     const createTooltipColumn = (dataTable) => ({
@@ -228,6 +250,7 @@ async function drawCharts() {
         }
     });
 
+    // Draw Pie Chart
     const pieChartData = google.visualization.arrayToDataTable(pieData);
     const pieView = new google.visualization.DataView(pieChartData);
     pieView.setColumns([0, 1, createTooltipColumn(pieChartData)]);
@@ -235,17 +258,10 @@ async function drawCharts() {
     const pieChart = new google.visualization.PieChart(pageElements.pieChart);
     pieChart.draw(pieView, {
         colors: ['#6a98f6', '#3366cc'],
-        tooltip: {
-            isHtml: true,
-            textStyle: { fontSize: 14 },
-            trigger: 'focus'
-        },
+        tooltip: { isHtml: true, textStyle: { fontSize: 14 }, trigger: 'focus' },
         legend: {
             position: 'bottom',
-            textStyle: {
-                fontSize: 12,
-                color: 'black'
-            }
+            textStyle: { fontSize: 12, color: 'black' }
         },
         fontSize: 14
     });
@@ -280,21 +296,14 @@ async function drawCharts() {
 
     const columnChartData = google.visualization.arrayToDataTable(columnData);
     const columnView = new google.visualization.DataView(columnChartData);
-    columnView.setColumns([0, 1, createTooltipColumn(columnChartData)]); 
+    columnView.setColumns([0, 1, createTooltipColumn(columnChartData)]);
 
     const columnChart = new google.visualization.ColumnChart(pageElements.columnChart);
     columnChart.draw(columnView, {
         colors: ['#6a98f6', '#3366cc'],
-        tooltip: {
-            isHtml: true,
-            textStyle: { fontSize: 14 },
-            trigger: 'focus'
-        },
+        tooltip: { isHtml: true, textStyle: { fontSize: 14 }, trigger: 'focus' },
         legend: { position: 'none' },
-        hAxis: {
-            title: '',
-            textStyle: { fontSize: 12 }
-        },
+        hAxis: { title: '', textStyle: { fontSize: 12 } },
         vAxis: {
             title: '',
             format: '#\'%\'',
@@ -344,13 +353,19 @@ async function updateLegendTable() {
     }
 }
 
-function setRandomTime() {
-    const start = 4 * 60 + 12;
-    const end = 6 * 60 + 45;
-    const randomSeconds = Math.floor(Math.random() * (end - start + 1)) + start;
-    const minutes = Math.floor(randomSeconds / 60);
-    const seconds = randomSeconds % 60;
-    pageElements.timeTitle.textContent = `00:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+async function setTimeOnSite() {
+    try {
+        const response = await fetch(`https://adavice.github.io/charts/json/${currentJsonFile}`);
+        const jsonData = await response.json();
+        
+        const timeInMinutes = Math.floor(jsonData.timeOnSite);
+        const seconds = Math.round((jsonData.timeOnSite - timeInMinutes) * 60);
+        
+        pageElements.timeTitle.textContent = `00:${String(timeInMinutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    } catch (error) {
+        console.error('Error fetching time on site:', error);
+        pageElements.timeTitle.textContent = '00:00:00';
+    }
 }
 
 function updateAllCharts() {
@@ -359,7 +374,24 @@ function updateAllCharts() {
 }
 
 google.charts.setOnLoadCallback(async () => {
-    drawLineChart('daily');
+    await drawLineChart('daily');
     await updateAllCharts();
-    setRandomTime();
+    await setTimeOnSite();
 });
+
+/*pdf script*/
+function saveAsPDF() {
+    const { jsPDF } = window.jspdf;
+
+    html2canvas(document.body, { scale: 2 }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+
+        // Adjusting PDF dimensions
+        const imgWidth = 210; // A4 width in mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width; 
+
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+        pdf.save("page.pdf");
+    });
+}
