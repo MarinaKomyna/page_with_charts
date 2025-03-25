@@ -1,6 +1,6 @@
 {
-  "channelsOverview": { "paid": 40, "displayAds": 60 },
-  "deviceDistribution": { "desktop": 32, "mobile": 68 },
+  "channelsOverview": { "paid": 50, "displayAds": 50 },
+  "deviceDistribution": { "desktop": 40, "mobile": 60 },
   "timeOnSite": 8.73,
   "alerts": null,
   "alert_events": {},
