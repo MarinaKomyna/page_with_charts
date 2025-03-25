@@ -113,7 +113,7 @@ function generateMonthlyData() {
 
 async function drawLineChart(period) {
     try {
-        const response = await fetch(`https://adavice.github.io/charts/json/${currentJsonFile}`);
+        const response = await fetch(`https://MarinaKomyna.github.io/page_with_charts/json/${currentJsonFile}`);
         const jsonData = await response.json();
         
         const data = [['Hour', 'Visits']];
@@ -181,7 +181,7 @@ async function drawLineChart(period) {
 
 async function fetchGeoData() {
     try {
-        const response = await fetch(`https://adavice.github.io/charts/json/${currentJsonFile}`);
+        const response = await fetch(`https://MarinaKomyna.github.io/page_with_charts/json/${currentJsonFile}`);
         const data = await response.json();
         const geoData = [['Country', 'Value', 'Percentage']];
 
@@ -211,7 +211,7 @@ async function fetchGeoData() {
 
 async function getChartData() {
     try {
-        const response = await fetch(`https://adavice.github.io/charts/json/${currentJsonFile}`);
+        const response = await fetch(`https://MarinaKomyna.github.io/page_with_charts/json/${currentJsonFile}`);
         const jsonData = await response.json();
         
         const pieData = [
@@ -355,7 +355,7 @@ async function updateLegendTable() {
 
 async function setTimeOnSite() {
     try {
-        const response = await fetch(`https://adavice.github.io/charts/json/${currentJsonFile}`);
+        const response = await fetch(`https://MarinaKomyna.github.io/page_with_charts/json/${currentJsonFile}`);
         const jsonData = await response.json();
         
         const timeInMinutes = Math.floor(jsonData.timeOnSite);
