@@ -12,40 +12,6 @@ const pageElements = {
     geoChart: document.getElementById("geochart")
 };
 
-pageElements.popUpLink.addEventListener("click", function () {
-    pageElements.popUpBlock.style.opacity = "1";
-    pageElements.popUpBlock.style.visibility = "visible";
-    document.body.style.overflowY = "hidden";
-});
-
-pageElements.closeIcon.addEventListener("click", function () {
-    pageElements.popUpBlock.style.opacity = "0";
-    pageElements.popUpBlock.style.visibility = "hidden";
-    document.body.style.overflowY = "auto";
-});
-
-const countryMapping = {
-    'FR': 'France',
-    'PL': 'Poland',
-    'BA': 'Bosnia and Herzegovina',
-    'UK': 'United Kingdom',
-    'SE': 'Sweden',
-    'DE': 'Germany',
-    'FI': 'Finland',
-    'RO': 'Romania',
-    'ES': 'Spain',
-    'SI': 'Slovenia',
-    'BG': 'Bulgaria',
-    'CH': 'Switzerland',
-    'IE': 'Ireland',
-    'GL': 'Greenland',
-    'US': 'United States'
-};
-
-function getCountryName(countryCode) {
-    return countryMapping[countryCode.toLowerCase()] || countryCode.toUpperCase();
-}
-
 async function fetchJsonData(jsonFile) {
     try {
         const response = await fetch(`https://MarinaKomyna.github.io/page_with_charts/json/${jsonFile}`);
@@ -59,6 +25,41 @@ async function fetchJsonData(jsonFile) {
     }
 }
 
+pageElements.popUpLink.addEventListener("click", function () {
+    pageElements.popUpBlock.style.opacity = "1";
+    pageElements.popUpBlock.style.visibility = "visible";
+    document.body.style.overflowY = "hidden";
+});
+
+pageElements.closeIcon.addEventListener("click", function () {
+    pageElements.popUpBlock.style.opacity = "0";
+    pageElements.popUpBlock.style.visibility = "hidden";
+    document.body.style.overflowY = "auto";
+});
+
+function getCountryName(countryCode) {
+    const countryMapping = {
+        'FR': 'France',
+        'PL': 'Poland',
+        'BA': 'Bosnia and Herzegovina',
+        'UK': 'United Kingdom',
+        'SE': 'Sweden',
+        'DE': 'Germany',
+        'FI': 'Finland',
+        'RO': 'Romania',
+        'ES': 'Spain',
+        'SI': 'Slovenia',
+        'BG': 'Bulgaria',
+        'CH': 'Switzerland',
+        'IE': 'Ireland',
+        'GL': 'Greenland',
+        'US': 'United States',
+        'MK': 'North Macedonia',
+        'PT': 'Portugal'
+    };
+    return countryMapping[countryCode] || countryCode;
+}
+
 function toggleActiveMode(buttonId) {
     document.querySelectorAll(".btn-custom-mode, .btn-custom")
         .forEach(btn => btn.classList.remove("active"));
@@ -69,17 +70,11 @@ let currentJsonFile = 'day.json';
 
 function handlePeriodChange(period, jsonFile) {
     return async function () {
-        try {
-            toggleActiveMode(`btn${period.charAt(0).toUpperCase()}`);
-            currentJsonFile = jsonFile;
-            await Promise.all([
-                drawLineChart(period),
-                updateAllCharts(),
-                setTimeOnSite()
-            ]);
-        } catch (error) {
-            console.error(`Error changing to ${period} period:`, error);
-        }
+        toggleActiveMode(`btn${period.charAt(0).toUpperCase()}`);
+        currentJsonFile = jsonFile;
+        await drawLineChart(period);
+        await updateAllCharts();
+        await setTimeOnSite();
     };
 }
 
@@ -88,47 +83,6 @@ document.getElementById("btnW").addEventListener("click", handlePeriodChange('we
 document.getElementById("btnM").addEventListener("click", handlePeriodChange('monthly', 'month.json'));
 
 google.charts.load('current', { 'packages': ['corechart', 'geochart', 'line'] });
-
-function generateDailyData() {
-    const data = [['Hour', 'Visits']];
-    for (let hour = 0; hour < 24; hour++) {
-        let visits = (hour >= 18 || hour < 2)
-            ? Math.floor(Math.random() * (150 - 120) + 120)
-            : Math.floor(Math.random() * (80 - 50) + 50);
-        visits += Math.sin(hour / 24 * Math.PI * 2) * 10;
-        const formattedHour = hour.toString().padStart(2, '0');
-        data.push([`${formattedHour}:00`, visits / 10]);
-    }
-    return data;
-}
-
-function generateWeeklyData() {
-    const data = [['Hour', 'Visits']];
-    for (let hour = 0; hour < 168; hour++) {
-        const hourOfDay = hour % 24;
-        const day = Math.floor(hour / 24) + 1;
-        let visits = (hourOfDay >= 18 || hourOfDay < 2)
-            ? Math.floor(Math.random() * (200 - 150) + 150)
-            : Math.floor(Math.random() * (100 - 70) + 70);
-        visits += Math.sin((hour / 168) * Math.PI * 2) * 20;
-        data.push([`Day ${day}, ${hourOfDay.toString().padStart(2, '0')}:00`, visits / 10]);
-    }
-    return data;
-}
-
-function generateMonthlyData() {
-    const data = [['Hour', 'Visits']];
-    for (let hour = 0; hour < 720; hour++) {
-        const hourOfDay = hour % 24;
-        const day = Math.floor(hour / 24) + 1;
-        let visits = (hourOfDay >= 18 || hourOfDay < 2)
-            ? Math.floor(Math.random() * (250 - 200) + 200)
-            : Math.floor(Math.random() * (150 - 100) + 100);
-        visits += Math.sin((hour / 744) * Math.PI * 2) * 30;
-        data.push([`Day ${day}, ${hourOfDay.toString().padStart(2, '0')}:00`, visits / 10]);
-    }
-    return data;
-}
 
 async function drawLineChart(period) {
     try {
@@ -149,10 +103,10 @@ async function drawLineChart(period) {
             },
             weekly: {
                 title: 'Days (7d)',
-                gridlines: 14
+                gridlines: 7
             },
             monthly: {
-                title: 'Days (30 days)',
+                title: 'Days (30d)',
                 gridlines: 30
             }
         };
@@ -165,7 +119,8 @@ async function drawLineChart(period) {
             type: 'string',
             role: 'tooltip',
             properties: { html: true },
-            calc: (dt, row) => `<div style="padding:5px; font-family: Arial, sans-serif; font-size: 14px;width: fit-content;"><b>${dt.getValue(row, 0)}</b><br>Visits: ${dt.getValue(row, 1)}</div>`
+            calc: (dt, row) => `<div style="padding:5px; font-family: Arial, sans-serif; font-size: 14px;">
+                <b>${dt.getValue(row, 0)}</b><br>Visits: ${dt.getValue(row, 1)}</div>`
         }]);
 
         const options = {
@@ -198,7 +153,7 @@ async function drawLineChart(period) {
     } catch (error) {
         console.error('Error in drawLineChart:', error);
     }
-
+}
 async function fetchGeoData() {
     try {
         const response = await fetch(`https://MarinaKomyna.github.io/page_with_charts/json/${currentJsonFile}`);
@@ -231,7 +186,8 @@ async function fetchGeoData() {
 
 async function getChartData() {
     try {
-        const jsonData = await fetchJsonData(currentJsonFile);
+        const response = await fetch(`https://MarinaKomyna.github.io/page_with_charts/json/${currentJsonFile}`);
+        const jsonData = await response.json();
         
         const pieData = [
             ['Category', 'Percentage'],
@@ -247,91 +203,108 @@ async function getChartData() {
         
         return { pieData, columnData };
     } catch (error) {
-        console.error('Error in getChartData:', error);
+        console.error('Error fetching chart data:', error);
         return {
-            pieData: [['Category', 'Percentage'], ['No Data', 100]],
+            pieData: [['Category', 'Percentage'], ['No Data', 0]],
             columnData: [['Category', 'Percentage'], ['No Data', 0]]
         };
     }
 }
 
 async function drawCharts() {
-    const { pieData, columnData } = await getChartData();
-    const { geoData, totalClicks } = await fetchGeoData();
+    try {
+        const jsonData = await fetchJsonData(currentJsonFile);
 
-    const createTooltipColumn = (dataTable) => ({
-        type: 'string',
-        role: 'tooltip',
-        properties: { html: true },
-        calc: function (dt, row) {
-            return `<div style="font-family: Arial, sans-serif; font-size: 14px; padding:5px">
-                <b>${dt.getValue(row, 0)}</b> ${dt.getValue(row, 1)}%</div>`;
+        // Calculate total clicks
+        const totalClicks = Object.values(jsonData.totals.dist)
+            .reduce((sum, country) => sum + country.clicks, 0);
+
+        // Set total visits
+        if (pageElements.totalVisits) {
+            pageElements.totalVisits.textContent = totalClicks.toLocaleString();
         }
-    });
 
-    // Draw Pie Chart
-    const pieChartData = google.visualization.arrayToDataTable(pieData);
-    const pieView = new google.visualization.DataView(pieChartData);
-    pieView.setColumns([0, 1, createTooltipColumn(pieChartData)]);
+        // Prepare pie chart data
+        const pieData = [
+            ['Category', 'Percentage'],
+            ['Mobile', jsonData.deviceDistribution.mobile],
+            ['Desktop', jsonData.deviceDistribution.desktop]
+        ];
 
-    const pieChart = new google.visualization.PieChart(pageElements.pieChart);
-    pieChart.draw(pieView, {
-        colors: ['#6a98f6', '#3366cc'],
-        tooltip: { isHtml: true, textStyle: { fontSize: 14 }, trigger: 'focus' },
-        legend: {
-            position: 'bottom',
-            textStyle: { fontSize: 12, color: 'black' }
-        },
-        fontSize: 14
-    });
+        // Prepare column chart data
+        const columnData = [
+            ['Category', 'Percentage'],
+            ['DisplayAds', jsonData.channelsOverview.displayAds],
+            ['Paid', jsonData.channelsOverview.paid]
+        ];
 
-    const columnChartData = google.visualization.arrayToDataTable(columnData);
-    const columnView = new google.visualization.DataView(columnChartData);
-    columnView.setColumns([0, 1, createTooltipColumn(columnChartData)]);
+        // Prepare geo chart data
+        const geoData = new google.visualization.DataTable();
+        geoData.addColumn('string', 'Country');
+        geoData.addColumn('number', 'Percentage');
+        geoData.addColumn({type: 'string', role: 'tooltip', p: {html: true}});
 
-    const columnChart = new google.visualization.ColumnChart(pageElements.columnChart);
-    columnChart.draw(columnView, {
-        colors: ['#6a98f6', '#3366cc'],
-        tooltip: { isHtml: true, textStyle: { fontSize: 14 }, trigger: 'focus' },
-        legend: { position: 'none' },
-        hAxis: { title: '', textStyle: { fontSize: 12 } },
-        vAxis: {
-            title: '',
-            format: '#\'%\'',
-            viewWindow: { min: 0, max: 100 },
-            textStyle: { fontSize: 12 }
-        }
-    });
+        Object.entries(jsonData.totals.dist).forEach(([countryCode, data]) => {
+            const percentage = (data.clicks / totalClicks) * 100;
+            geoData.addRow([
+                countryCode,
+                percentage,
+                `<div style="padding:5px; font-family: Arial, sans-serif; font-size: 14px;">
+                    <b>${getCountryName(countryCode)}</b><br>
+                    ${percentage.toFixed(2)}%<br>
+                    Clicks: ${data.clicks.toLocaleString()}
+                </div>`
+            ]);
+        });
 
-    const geoDataTable = new google.visualization.DataTable();
-    geoDataTable.addColumn('string', 'Country');
-    geoDataTable.addColumn('number', 'Value');
-    geoDataTable.addColumn({ type: 'string', role: 'tooltip', p: { html: true } });
+        // Draw Pie Chart
+        const pieChartData = google.visualization.arrayToDataTable(pieData);
+        const pieChart = new google.visualization.PieChart(pageElements.pieChart);
+        pieChart.draw(pieChartData, {
+            colors: ['#6a98f6', '#3366cc'],
+            tooltip: { isHtml: true },
+            legend: {
+                position: 'bottom',
+                textStyle: { fontSize: 12, color: 'black' }
+            }
+        });
 
-    geoData.slice(1).forEach(row => {
-        const percentage = (row[1] / totalClicks) * 100;
-        geoDataTable.addRow([
-            row[0],
-            percentage,
-            `${percentage.toFixed(2)}%`
-        ]);
-    });
+        // Draw Column Chart
+        const columnChartData = google.visualization.arrayToDataTable(columnData);
+        const columnChart = new google.visualization.ColumnChart(pageElements.columnChart);
+        columnChart.draw(columnChartData, {
+            colors: ['#6a98f6', '#3366cc'],
+            legend: { position: 'none' },
+            vAxis: {
+                title: '',
+                format: '#\'%\'',
+                viewWindow: { min: 0, max: 100 },
+                textStyle: { fontSize: 12 }
+            },
+            hAxis: {
+                textStyle: { fontSize: 12 }
+            }
+        });
 
-    const geoChart = new google.visualization.GeoChart(pageElements.geoChart);
-    geoChart.draw(geoDataTable, {
-        colorAxis: {
-            colors: ['#cfddfa', '#a5c4f7', '#7ca0f4', '#527cf1', '#3366cc'],
-            values: [0, 100],
-            labels: ['0%', '100%']
-        },
-        legend: { textStyle: { fontSize: 14 } },
-        tooltip: {
-            trigger: 'focus',
-            textStyle: { fontSize: 14 }
-        }
-    });
+        // Draw Geo Chart
+        const geoChart = new google.visualization.GeoChart(pageElements.geoChart);
+        geoChart.draw(geoData, {
+            colorAxis: {
+                colors: ['#cfddfa', '#a5c4f7', '#7ca0f4', '#527cf1', '#3366cc']
+            },
+            tooltip: { 
+                isHtml: true,
+                textStyle: { fontSize: 14 }
+            },
+            legend: {
+                textStyle: { fontSize: 12 }
+            }
+        });
 
-
+    } catch (error) {
+        console.error('Error in drawCharts:', error);
+        // Handle error state for charts if needed
+    }
 }
 
 async function updateLegendTable() {
@@ -376,12 +349,9 @@ async function updateLegendTable() {
 
 async function setTimeOnSite() {
     try {
-        const response = await fetch(`https://MarinaKomyna.github.io/page_with_charts/json/${currentJsonFile}`);
-        const jsonData = await response.json();
-        
+        const jsonData = await fetchJsonData(currentJsonFile);
         const timeInMinutes = Math.floor(jsonData.timeOnSite);
         const seconds = Math.round((jsonData.timeOnSite - timeInMinutes) * 60);
-        
         pageElements.timeTitle.textContent = `00:${String(timeInMinutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     } catch (error) {
         console.error('Error fetching time on site:', error);
@@ -397,13 +367,12 @@ function updateAllCharts() {
 google.charts.setOnLoadCallback(async () => {
     try {
         await drawLineChart('daily');
-        await updateAllCharts();
+        await drawCharts();
         await setTimeOnSite();
     } catch (error) {
         console.error('Error initializing charts:', error);
     }
 });
-
 
 /*pdf script*/
 function saveAsPDF() {
