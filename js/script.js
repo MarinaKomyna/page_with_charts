@@ -46,6 +46,19 @@ function getCountryName(countryCode) {
     return countryMapping[countryCode.toLowerCase()] || countryCode.toUpperCase();
 }
 
+async function fetchJsonData(jsonFile) {
+    try {
+        const response = await fetch(`https://MarinaKomyna.github.io/page_with_charts/json/${jsonFile}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error(`Error fetching ${jsonFile}:`, error);
+        throw error;
+    }
+}
+
 function toggleActiveMode(buttonId) {
     document.querySelectorAll(".btn-custom-mode, .btn-custom")
         .forEach(btn => btn.classList.remove("active"));
@@ -56,11 +69,17 @@ let currentJsonFile = 'day.json';
 
 function handlePeriodChange(period, jsonFile) {
     return async function () {
-        toggleActiveMode(`btn${period.charAt(0).toUpperCase()}`);
-        currentJsonFile = jsonFile;
-        await drawLineChart(period);
-        await updateAllCharts();
-        await setTimeOnSite();
+        try {
+            toggleActiveMode(`btn${period.charAt(0).toUpperCase()}`);
+            currentJsonFile = jsonFile;
+            await Promise.all([
+                drawLineChart(period),
+                updateAllCharts(),
+                setTimeOnSite()
+            ]);
+        } catch (error) {
+            console.error(`Error changing to ${period} period:`, error);
+        }
     };
 }
 
@@ -113,12 +132,14 @@ function generateMonthlyData() {
 
 async function drawLineChart(period) {
     try {
-        const response = await fetch(`https://MarinaKomyna.github.io/page_with_charts/json/${currentJsonFile}`);
-        const jsonData = await response.json();
-        
+        const jsonData = await fetchJsonData(currentJsonFile);
         const data = [['Hour', 'Visits']];
+        
+        // Process data based on period
         jsonData.visitDuration.forEach(entry => {
-            data.push([entry.hour, entry.visits]);
+            const label = period === 'daily' ? entry.hour :
+                         `Day ${entry.day}, ${entry.hour}`;
+            data.push([label, entry.visits]);
         });
 
         const periodConfig = {
@@ -175,9 +196,8 @@ async function drawLineChart(period) {
         const chart = new google.visualization.LineChart(pageElements.lineChart);
         chart.draw(view, options);
     } catch (error) {
-        console.error('Error fetching visit duration data:', error);
+        console.error('Error in drawLineChart:', error);
     }
-}
 
 async function fetchGeoData() {
     try {
@@ -211,8 +231,7 @@ async function fetchGeoData() {
 
 async function getChartData() {
     try {
-        const response = await fetch(`https://MarinaKomyna.github.io/page_with_charts/json/${currentJsonFile}`);
-        const jsonData = await response.json();
+        const jsonData = await fetchJsonData(currentJsonFile);
         
         const pieData = [
             ['Category', 'Percentage'],
@@ -228,9 +247,9 @@ async function getChartData() {
         
         return { pieData, columnData };
     } catch (error) {
-        console.error('Error fetching chart data:', error);
+        console.error('Error in getChartData:', error);
         return {
-            pieData: [['Category', 'Percentage'], ['No Data', 0]],
+            pieData: [['Category', 'Percentage'], ['No Data', 100]],
             columnData: [['Category', 'Percentage'], ['No Data', 0]]
         };
     }
@@ -266,6 +285,24 @@ async function drawCharts() {
         fontSize: 14
     });
 
+    const columnChartData = google.visualization.arrayToDataTable(columnData);
+    const columnView = new google.visualization.DataView(columnChartData);
+    columnView.setColumns([0, 1, createTooltipColumn(columnChartData)]);
+
+    const columnChart = new google.visualization.ColumnChart(pageElements.columnChart);
+    columnChart.draw(columnView, {
+        colors: ['#6a98f6', '#3366cc'],
+        tooltip: { isHtml: true, textStyle: { fontSize: 14 }, trigger: 'focus' },
+        legend: { position: 'none' },
+        hAxis: { title: '', textStyle: { fontSize: 12 } },
+        vAxis: {
+            title: '',
+            format: '#\'%\'',
+            viewWindow: { min: 0, max: 100 },
+            textStyle: { fontSize: 12 }
+        }
+    });
+
     const geoDataTable = new google.visualization.DataTable();
     geoDataTable.addColumn('string', 'Country');
     geoDataTable.addColumn('number', 'Value');
@@ -294,23 +331,7 @@ async function drawCharts() {
         }
     });
 
-    const columnChartData = google.visualization.arrayToDataTable(columnData);
-    const columnView = new google.visualization.DataView(columnChartData);
-    columnView.setColumns([0, 1, createTooltipColumn(columnChartData)]);
 
-    const columnChart = new google.visualization.ColumnChart(pageElements.columnChart);
-    columnChart.draw(columnView, {
-        colors: ['#6a98f6', '#3366cc'],
-        tooltip: { isHtml: true, textStyle: { fontSize: 14 }, trigger: 'focus' },
-        legend: { position: 'none' },
-        hAxis: { title: '', textStyle: { fontSize: 12 } },
-        vAxis: {
-            title: '',
-            format: '#\'%\'',
-            viewWindow: { min: 0, max: 100 },
-            textStyle: { fontSize: 12 }
-        }
-    });
 }
 
 async function updateLegendTable() {
@@ -374,10 +395,15 @@ function updateAllCharts() {
 }
 
 google.charts.setOnLoadCallback(async () => {
-    await drawLineChart('daily');
-    await updateAllCharts();
-    await setTimeOnSite();
+    try {
+        await drawLineChart('daily');
+        await updateAllCharts();
+        await setTimeOnSite();
+    } catch (error) {
+        console.error('Error initializing charts:', error);
+    }
 });
+
 
 /*pdf script*/
 function saveAsPDF() {
