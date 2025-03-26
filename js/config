@@ -1,1 +1,7 @@
-
+const API_CONFIG = {
+    baseUrl: 'https://logs.radinet.net/json/',
+    credentials: {
+        username: '123456789',
+        password: 'json_files'
+    }
+};
