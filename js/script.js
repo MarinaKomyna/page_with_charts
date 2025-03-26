@@ -82,6 +82,16 @@ document.getElementById("btnM").addEventListener("click", handlePeriodChange('mo
 
 google.charts.load('current', { 'packages': ['corechart', 'geochart', 'line'] });
 
+const createTooltipColumn = (dataTable) => ({
+    type: 'string',
+    role: 'tooltip',
+    properties: { html: true },
+    calc: function (dt, row) {
+        return `<div style="font-family: Arial, sans-serif; font-size: 14px; padding:5px">
+            <b>${dt.getValue(row, 0)}</b> ${dt.getValue(row, 1)}%</div>`;
+    }
+});
+
 async function drawLineChart(period) {
     try {
         const jsonData = await fetchJsonData(currentJsonFile);
@@ -117,8 +127,8 @@ async function drawLineChart(period) {
             type: 'string',
             role: 'tooltip',
             properties: { html: true },
-            calc: (dt, row) => `<div style="padding:5px; font-family: Arial, sans-serif; font-size: 14px;">
-                <b>${dt.getValue(row, 0)}</b><br>Visits: ${dt.getValue(row, 1)}</div>`
+            calc: (dt, row) => `<div style="padding:5px; font-family: Arial, sans-serif; font-size: 14px; width: 80px;">
+                <b>${dt.getValue(row, 0)}</b></div>`
         }]);
 
         const options = {
@@ -180,54 +190,75 @@ async function drawCharts() {
             ['Paid', jsonData.channelsOverview.paid]
         ];
 
-        // Draw Pie Chart
+        // Create DataView for pie chart with tooltip
         const pieChartData = google.visualization.arrayToDataTable(pieData);
+        const pieView = new google.visualization.DataView(pieChartData);
+        pieView.setColumns([0, 1, createTooltipColumn(pieChartData)]);
+
+        // Draw Pie Chart with updated tooltip
         const pieChart = new google.visualization.PieChart(pageElements.pieChart);
-        pieChart.draw(pieChartData, {
+        pieChart.draw(pieView, {
             colors: ['#6a98f6', '#3366cc'],
-            tooltip: { isHtml: true },
+            tooltip: {
+                isHtml: true,
+                textStyle: { fontSize: 14 },
+                trigger: 'focus'
+            },
             legend: {
                 position: 'bottom',
-                textStyle: { fontSize: 12, color: 'black' }
-            }
+                textStyle: {
+                    fontSize: 12,
+                    color: 'black'
+                }
+            },
+            fontSize: 14
         });
 
-        // Draw Column Chart
+        // Create DataView for column chart with tooltip
         const columnChartData = google.visualization.arrayToDataTable(columnData);
+        const columnView = new google.visualization.DataView(columnChartData);
+        columnView.setColumns([0, 1, createTooltipColumn(columnChartData)]);
+
+        // Draw Column Chart with updated tooltip
         const columnChart = new google.visualization.ColumnChart(pageElements.columnChart);
-        columnChart.draw(columnChartData, {
+        columnChart.draw(columnView, {
             colors: ['#6a98f6', '#3366cc'],
+            tooltip: {
+                isHtml: true,
+                textStyle: { fontSize: 14 },
+                trigger: 'focus'
+            },
             legend: { position: 'none' },
+            hAxis: {
+                textStyle: { fontSize: 12 }
+            },
             vAxis: {
                 title: '',
                 format: '#\'%\'',
                 viewWindow: { min: 0, max: 100 },
                 textStyle: { fontSize: 12 }
-            },
-            hAxis: {
-                textStyle: { fontSize: 12 }
             }
         });
 
-        // Prepare geo chart data with normalized percentages
+        // Prepare geo chart data
         const geoDataTable = new google.visualization.DataTable();
         geoDataTable.addColumn('string', 'Country');
         geoDataTable.addColumn('number', 'Percentage');
         geoDataTable.addColumn({type: 'string', role: 'tooltip', p: {html: true}});
 
-        // Add data rows for geo chart with percentages
+        // Add data rows for geo chart
         Object.entries(jsonData.totals.dist).forEach(([countryCode, data]) => {
             const percentage = (data.clicks / totalClicks) * 100;
             geoDataTable.addRow([
                 countryCode,
                 percentage,
-                `<div style="padding:0px; font-family: Arial, sans-serif; font-size: 14px; width: 60px">
+                `<div style="padding:0px; font-family: Arial, sans-serif; font-size: 14px; width: 60px;">
                     ${percentage.toFixed(2)}%
                 </div>`
             ]);
         });
 
-        // Draw Geo Chart with percentage settings
+        // Draw Geo Chart with updated tooltip
         const geoChart = new google.visualization.GeoChart(pageElements.geoChart);
         geoChart.draw(geoDataTable, {
             colorAxis: {
@@ -236,10 +267,11 @@ async function drawCharts() {
                 maxValue: 100
             },
             legend: {
-                textStyle: { fontSize: 12 }
+                textStyle: { fontSize: 14 }
             },
-            tooltip: { 
+            tooltip: {
                 isHtml: true,
+                trigger: 'focus',
                 textStyle: { fontSize: 14 }
             }
         });
@@ -248,6 +280,7 @@ async function drawCharts() {
         console.error('Error in drawCharts:', error);
     }
 }
+
 async function updateLegendTable() {
     try {
         // Use fetchJsonData instead of fetchGeoData
