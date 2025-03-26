@@ -13,13 +13,31 @@ const pageElements = {
 
 async function fetchJsonData(jsonFile) {
     try {
-        const response = await fetch(`https://MarinaKomyna.github.io/page_with_charts/json/${jsonFile}`);
+        const { username, password } = API_CONFIG.credentials;
+        const base64Credentials = btoa(`${username}:${password}`);
+
+        const response = await fetch(`${API_CONFIG.baseUrl}${jsonFile}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Basic ${base64Credentials}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            mode: 'cors',
+            credentials: 'same-origin' // Try this instead of 'include'
+        });
+
         if (!response.ok) {
+            console.error('Response not OK:', response.status, response.statusText);
             throw new Error(`HTTP error! status: ${response.status}`);
         }
+
         return await response.json();
     } catch (error) {
-        console.error(`Error fetching ${jsonFile}:`, error);
+        console.error('Fetch error:', error);
+        if (error instanceof TypeError && error.message === 'Failed to fetch') {
+            console.log('This might be a CORS issue or network problem');
+        }
         throw error;
     }
 }
